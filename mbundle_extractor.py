@@ -65,6 +65,22 @@ def process_batch(files_to_extract, bundle_output_dir):
         output_file_path = os.path.join(bundle_output_dir, file_name)
         with open(output_file_path, 'wb') as output_file:
             output_file.write(file_data)
+        
+        # Check if the file is valid (exists and has non-zero size)
+        if not os.path.exists(output_file_path) or os.path.getsize(output_file_path) == 0:
+            # Re-extract the file
+            print(f"Invalid file: {file_name}. Re-extracting from mbundle.")
+            with open(mbundle_path, 'rb') as mbundle_file:
+                mbundle_data = mbundle_file.read()
+                offset = int(file_values[file_keys.index(file_name) + 1].find("integer").text)
+                size = int(file_values[file_keys.index(file_name) + 2].find("integer").text) - offset
+                file_data = mbundle_data[offset:offset+size]
+            
+            # Write the correct file data
+            with open(output_file_path, 'wb') as output_file:
+                output_file.write(file_data)
+        
+        print(f'Extracted {file_name} to {output_file_path}')
 
 root = tk.Tk()
 root.title("Mbundle Extractor")
