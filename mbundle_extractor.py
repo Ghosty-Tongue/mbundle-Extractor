@@ -1,6 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 import threading
+from tkinter import Tk, filedialog
 
 def extract_files_from_mbundle(plist_path, mbundle_path, output_dir, batch_size=10):
     try:
@@ -74,10 +75,24 @@ def process_batch(files_to_extract, bundle_output_dir):
         if os.path.getsize(output_file_path) == 0:
             print(f"Error: Failed to extract {file_name} correctly after multiple attempts")
 
+def select_file(filetypes):
+    root = Tk()
+    root.withdraw()  # Hide the root window
+    file_path = filedialog.askopenfilename(filetypes=filetypes)
+    root.destroy()
+    return file_path
+
+def select_directory():
+    root = Tk()
+    root.withdraw()
+    dir_path = filedialog.askdirectory()
+    root.destroy()
+    return dir_path
+
 def main():
-    plist_path = input("Enter the path to the plist file: ")
-    mbundle_path = input("Enter the path to the mbundle file: ")
-    output_dir = input("Enter the output directory: ")
+    plist_path = select_file([("Plist files", "*.plist")])
+    mbundle_path = select_file([("Mbundle files", "*.mbundle")])
+    output_dir = select_directory()
 
     if not plist_path or not mbundle_path or not output_dir:
         print("Error: All paths must be provided")
